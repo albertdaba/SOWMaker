@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>SOW Maker – Daba Law Office</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+:root{
+  --gold:#b48e3c;--gold-l:#d4aa55;--gold-dim:rgba(180,142,60,0.12);--gold-b:rgba(180,142,60,0.25);
+  --bg:#0b0f14;--surf:#131820;--surf2:#1a2130;--bdr:#1e2a38;--bdr2:#2a3a4f;
+  --txt:#e8dfc8;--txt2:#8a9ab0;--txt3:#4a5a6a;--red:#e05555;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);}
+input,textarea,select{font-family:'DM Sans',sans-serif;}
+
+.app{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:60px;
+  background:var(--bg);
+  background-image:radial-gradient(ellipse 60% 40% at 15% 0%,rgba(180,142,60,.07) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 50% at 85% 100%,rgba(180,142,60,.04) 0%,transparent 70%);}
+
+/* ── Header ── */
+.hdr{width:100%;max-width:520px;padding:26px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;}
+.hdr-badge{display:inline-flex;align-items:center;gap:7px;background:var(--gold-dim);border:1px solid var(--gold-b);
+  border-radius:20px;padding:5px 12px;margin-bottom:12px;}
+.hdr-badge span{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+.hdr h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--txt);line-height:1.15;margin-bottom:5px;}
+.hdr p{font-size:11px;color:var(--txt3);line-height:1.5;}
+.gear-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--bdr2);background:var(--surf2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt2);font-size:16px;
+  transition:all .2s;flex-shrink:0;margin-top:4px;}
+.gear-btn:hover{border-color:var(--gold-b);color:var(--gold);}
+
+/* ── Steps ── */
+.strack{display:flex;align-items:center;padding:22px 20px 0;width:100%;max-width:520px;}
+.sdot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;flex-shrink:0;transition:all .3s;}
+.sdot.done{background:var(--gold);color:var(--bg);}
+.sdot.active{background:var(--txt);color:var(--bg);box-shadow:0 0 0 3px rgba(232,223,200,.12);}
+.sdot.pending{background:var(--surf2);color:var(--txt3);border:1px solid var(--bdr2);}
+.sline{flex:1;height:1px;background:var(--bdr2);}
+.sline.done{background:var(--gold);}
+.slabels{display:flex;padding:7px 20px 0;width:100%;max-width:520px;}
+.slabel{flex:1;text-align:center;font-size:9px;font-weight:500;letter-spacing:.03em;color:var(--txt3);}
+.slabel.active{color:var(--gold);}
+.slabel:first-child{text-align:left;}
+.slabel:last-child{text-align:right;}
+
+/* ── Card ── */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:16px;
+  padding:22px 20px;margin:18px 16px 0;width:calc(100% - 32px);max-width:488px;}
+.ctitle{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--txt);font-weight:600;margin-bottom:3px;}
+.csub{font-size:11px;color:var(--txt3);margin-bottom:18px;}
+
+/* ── Fields ── */
+.fg{margin-bottom:14px;}
+.fl{display:block;font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--txt2);margin-bottom:7px;}
+.fi{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:9px;
+  padding:11px 13px;font-size:13.5px;color:var(--txt);outline:none;transition:border-color .2s;-webkit-appearance:none;}
+.fi:focus{border-color:var(--gold);}
+.fi::placeholder{color:var(--txt3);}
+textarea.fi{resize:vertical;min-height:88px;line-height:1.55;}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.pbtn{padding:9px 6px;border-radius:8px;border:1px solid var(--bdr2);background:var(--bg);
+  color:var(--txt3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .18s;text-align:center;}
+.pbtn.sel{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+
+/* ── Buttons ── */
+.brow{display:flex;gap:9px;margin-top:18px;}
+.btn{flex:1;padding:13px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.bp{background:var(--gold);color:var(--bg);}
+.bp:hover{background:var(--gold-l);}
+.bp:active{transform:scale(.98);}
+.bs{background:var(--surf2);color:var(--txt2);border:1px solid var(--bdr2);}
+.bs:hover{color:var(--txt);}
+
+/* ── Chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
+.chip{padding:5px 11px;border-radius:20px;border:1px solid var(--bdr2);background:var(--bg);
+  color:var(--txt2);font-size:11px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.chip:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ── Services ── */
+.catwrap{margin-bottom:5px;}
+.cathead{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;
+  background:var(--bg);border:1px solid var(--bdr2);border-radius:9px;cursor:pointer;transition:border-color .2s;}
+.cathead.open{border-color:rgba(180,142,60,.28);border-radius:9px 9px 0 0;}
+.catname{font-size:11.5px;font-weight:600;color:#c8d4e0;letter-spacing:.02em;}
+.catbadge{font-size:9px;color:var(--gold);font-weight:700;background:var(--gold-dim);padding:2px 7px;border-radius:10px;}
+.chev{color:var(--txt3);font-size:9px;transition:transform .2s;display:inline-block;}
+.cathead.open .chev{transform:rotate(180deg);}
+.ibox{border:1px solid rgba(180,142,60,.2);border-top:none;border-radius:0 0 9px 9px;overflow:hidden;margin-bottom:5px;}
+.srow{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;cursor:pointer;
+  border-bottom:1px solid var(--bdr);transition:background .15s;}
+.srow:last-child{border-bottom:none;}
+.srow:hover{background:rgba(255,255,255,.02);}
+.srow.sel{background:rgba(180,142,60,.07);}
+.chk{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--bdr2);display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s;}
+.srow.sel .chk{background:var(--gold);border-color:var(--gold);}
+.cm{color:var(--bg);font-size:9px;font-weight:800;}
+.slbl{font-size:12.5px;color:#dde5ef;line-height:1.4;margin-bottom:2px;}
+.sfee{font-size:10.5px;color:var(--gold);font-weight:600;}
+.snote{font-size:9.5px;color:var(--txt3);margin-top:1px;}
+.ssum{background:var(--gold-dim);border:1px solid var(--gold-b);border-radius:9px;padding:11px 13px;margin-bottom:14px;}
+.ssumtitle{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);margin-bottom:7px;}
+.stag{display:inline-flex;align-items:center;gap:5px;background:var(--bg);
+  border:1px solid rgba(180,142,60,.3);border-radius:20px;padding:3px 9px;font-size:10.5px;
+  color:#c8d4e0;margin:2px;cursor:pointer;transition:all .15s;}
+.stag:hover{border-color:var(--red);color:var(--red);}
+.scroll-s{max-height:400px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scroll-s::-webkit-scrollbar{width:3px;}
+.scroll-s::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px;}
+
+/* ── Retainer ── */
+.rbox{background:rgba(180,142,60,.05);border:1px solid rgba(180,142,60,.2);border-radius:10px;padding:14px;margin-top:10px;margin-bottom:10px;}
+.rtitle{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
+.tcol{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sched-tbl-dark{width:100%;border-collapse:collapse;margin-top:10px;font-size:11px;}
+.sched-tbl-dark th{background:var(--surf2);color:var(--txt2);padding:6px 9px;text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;}
+.sched-tbl-dark td{padding:6px 9px;border-bottom:1px solid var(--bdr);color:var(--txt2);}
+.sched-tbl-dark tr:last-child td{border-bottom:none;}
+
+/* ── Scope editor ── */
+.scope-item{display:flex;align-items:flex-start;gap:8px;padding:9px 10px;
+  background:var(--bg);border:1px solid var(--bdr2);border-radius:8px;margin-bottom:6px;}
+.sletter{width:22px;height:22px;border-radius:5px;background:var(--gold-dim);border:1px solid var(--gold-b);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold);flex-shrink:0;margin-top:1px;}
+.stxt{flex:1;font-size:12.5px;color:var(--txt);line-height:1.5;outline:none;background:transparent;
+  border:none;resize:none;font-family:'DM Sans',sans-serif;min-height:36px;}
+.sacts{display:flex;flex-direction:column;gap:3px;flex-shrink:0;}
+.ibtn{width:24px;height:24px;border-radius:5px;border:1px solid var(--bdr2);background:var(--surf2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;color:var(--txt3);transition:all .15s;}
+.ibtn:hover{color:var(--txt);}
+.ibtn.del:hover{border-color:rgba(224,85,85,.4);color:var(--red);background:rgba(224,85,85,.08);}
+.add-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;
+  border:1px dashed var(--bdr2);background:transparent;color:var(--txt3);font-size:12px;
+  font-family:'DM Sans',sans-serif;cursor:pointer;width:100%;transition:all .18s;margin-top:4px;}
+.add-btn:hover{border-color:var(--gold-b);color:var(--gold);}
+
+/* ── Clauses ── */
+.clause-item{border:1px solid var(--bdr2);border-radius:9px;overflow:hidden;margin-bottom:7px;}
+.clause-head{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;cursor:pointer;transition:background .15s;}
+.clause-head:hover{background:rgba(255,255,255,.02);}
+.clause-head.con{background:rgba(180,142,60,.05);}
+.cname{font-size:12.5px;font-weight:600;color:var(--txt);}
+.tog{width:36px;height:20px;border-radius:10px;position:relative;background:var(--bdr2);transition:background .2s;flex-shrink:0;cursor:pointer;}
+.tog.on{background:var(--gold);}
+.knob{width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform .2s;}
+.tog.on .knob{transform:translateX(16px);}
+.cbody{padding:0 13px 13px;background:var(--bg);}
+.ctarea{width:100%;background:var(--surf2);border:1px solid var(--bdr2);border-radius:7px;padding:10px;
+  font-family:'DM Sans',sans-serif;font-size:12px;color:var(--txt);line-height:1.6;resize:vertical;outline:none;min-height:80px;}
+.ctarea:focus{border-color:var(--gold-b);}
+.cnote{font-size:10px;color:var(--txt3);margin-bottom:7px;padding-top:10px;}
+.dvdr{height:1px;background:var(--bdr);margin:16px 0;}
+
+/* ── Firm Modal ── */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);
+  z-index:100;display:flex;align-items:flex-end;justify-content:center;}
+.modal-sh{background:var(--surf);border-radius:20px 20px 0 0;padding:24px 20px 40px;
+  width:100%;max-width:520px;max-height:88vh;overflow-y:auto;animation:sup .28s ease;}
+@keyframes sup{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.mhandle{width:36px;height:4px;background:var(--bdr2);border-radius:2px;margin:0 auto 20px;}
+.mtitle{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--txt);margin-bottom:3px;}
+.msub{font-size:11px;color:var(--txt3);margin-bottom:18px;}
+
+/* ══════════════════════════════════════════
+   PAGELESS EDITOR — Step 6
+══════════════════════════════════════════ */
+
+/* Full-width editor stage — breaks out of card max-width */
+.editor-stage{
+  width:100%;
+  max-width:100%;
+  margin:18px 0 0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* Sticky toolbar */
+.editor-toolbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  width:100%;
+  background:rgba(11,15,20,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--bdr);
+  display:flex;
+  align-items:center;
+  gap:0;
+  padding:0 12px;
+  min-height:48px;
+  flex-wrap:wrap;
+}
+
+.tb-group{
+  display:flex;
+  align-items:center;
+  gap:2px;
+  padding:6px 8px 6px 0;
+  border-right:1px solid var(--bdr2);
+  margin-right:8px;
+}
+.tb-group:last-child{border-right:none;margin-right:0;margin-left:auto;}
+
+.tb-btn{
+  height:32px;
+  min-width:32px;
+  padding:0 9px;
+  border-radius:6px;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--txt2);
+  font-family:'DM Sans',sans-serif;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  transition:all .15s;
+  white-space:nowrap;
+}
+.tb-btn:hover{background:var(--surf2);border-color:var(--bdr2);color:var(--txt);}
+.tb-btn.active{background:var(--gold-dim);border-color:var(--gold-b);color:var(--gold);}
+.tb-btn.print-tb{background:var(--gold);color:var(--bg);border-color:var(--gold);}
+.tb-btn.print-tb:hover{background:var(--gold-l);}
+
+.tb-select{
+  height:32px;
+  padding:0 8px;
+  border-radius:6px;
+  border:1px solid var(--bdr2);
+  background:var(--surf2);
+  color:var(--txt2);
+  font-family:'DM Sans',sans-serif;
+  font-size:11.5px;
+  cursor:pointer;
+  outline:none;
+  -webkit-appearance:none;
+}
+.tb-select:focus{border-color:var(--gold-b);}
+
+.tb-label{
+  font-size:9.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--txt3);
+  font-weight:600;
+  padding:0 6px 0 2px;
+}
+
+/* The scrollable canvas area */
+.editor-canvas{
+  width:100%;
+  background:#1c1c1c;
+  min-height:calc(100vh - 48px);
+  padding:32px 16px 80px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* The white document */
+.doc-page{
+  width:100%;
+  max-width:720px;
+  background:#fafaf8;
+  border-radius:3px;
+  box-shadow:0 4px 40px rgba(0,0,0,.5), 0 1px 6px rgba(0,0,0,.3);
+  padding:52px 52px 64px;
+  color:#1a1f2e;
+  font-family:'DM Sans',sans-serif;
+  outline:none;
+  line-height:1.6;
+  position:relative;
+  transition:box-shadow .2s;
+}
+.doc-page:focus{
+  box-shadow:0 4px 40px rgba(0,0,0,.6), 0 0 0 2px rgba(180,142,60,.3), 0 1px 6px rgba(0,0,0,.3);
+}
+
+/* Responsive padding */
+@media(max-width:600px){
+  .doc-page{padding:32px 24px 48px;}
+}
+
+/* Cursor cue when not focused */
+.doc-page:not(:focus-within)::after{
+  content:"Tap anywhere to edit";
+  position:absolute;
+  bottom:16px;
+  right:20px;
+  font-size:10px;
+  color:rgba(180,142,60,.5);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  pointer-events:none;
+}
+
+/* Document styles — these apply INSIDE the contentEditable .doc-page */
+.doc-page .sow-header-firm{
+  display:flex;align-items:flex-start;gap:14px;
+  margin-bottom:22px;padding-bottom:18px;border-bottom:2.5px solid #1a1f2e;
+}
+.doc-page .firm-logo-box{
+  width:44px;height:44px;background:#0b0f14;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:20px;color:#b48e3c;font-weight:700;flex-shrink:0;
+}
+.doc-page .firm-info{flex:1;min-width:0;}
+.doc-page .firm-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#1a1f2e;}
+.doc-page .firm-tag{font-size:9.5px;color:#888;letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+.doc-page .firm-contact{font-size:9.5px;color:#aaa;margin-top:3px;}
+.doc-page .firm-addr{font-size:9.5px;color:#aaa;text-align:right;max-width:160px;line-height:1.5;flex-shrink:0;}
+.doc-page .doc-title{
+  font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;
+  text-align:center;text-decoration:underline;margin-bottom:4px;color:#1a1f2e;
+}
+.doc-page .doc-subtitle{
+  text-align:center;font-size:10px;color:#888;margin-bottom:24px;
+  letter-spacing:.07em;text-transform:uppercase;
+}
+.doc-page p{font-size:13px;line-height:1.78;color:#374151;margin-bottom:14px;text-align:justify;}
+.doc-page h3{
+  font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;
+  color:#1a1f2e;margin-bottom:10px;margin-top:20px;
+}
+.doc-page ol{padding-left:0;list-style:none;margin-bottom:14px;}
+.doc-page ol li{
+  font-size:13px;color:#374151;line-height:1.68;margin-bottom:8px;
+  padding-left:24px;position:relative;
+}
+.doc-page ol li::before{content:attr(data-l)".";position:absolute;left:0;font-weight:700;color:#1a1f2e;}
+.doc-page table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;}
+.doc-page table th{background:#1a1f2e;color:#e8dfc8;padding:8px 10px;text-align:left;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;}
+.doc-page table td{padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#374151;vertical-align:top;}
+.doc-page table tr:nth-child(even) td{background:#f5f5f2;}
+.doc-page .fee-val{color:#8a6820;font-weight:700;}
+.doc-page .pay-note{
+  font-size:12px;color:#666;line-height:1.68;padding:12px 14px;
+  background:#f8f6f0;border-radius:7px;border-left:3px solid #b48e3c;margin-bottom:14px;
+}
+.doc-page .sig-section{margin-top:40px;display:flex;justify-content:space-between;gap:24px;}
+.doc-page .sig-block{flex:1;}
+.doc-page .sig-label{font-size:10px;color:#999;letter-spacing:.07em;text-transform:uppercase;margin-bottom:32px;}
+.doc-page .sig-line{border-top:1.5px solid #1a1f2e;padding-top:6px;font-size:12.5px;font-weight:700;color:#1a1f2e;}
+.doc-page .sig-role{font-size:10px;color:#aaa;margin-top:4px;}
+.doc-page .doc-date{font-size:11px;color:#999;text-align:right;margin-top:12px;}
+
+/* Bottom action bar under editor */
+.editor-actions{
+  position:sticky;
+  bottom:0;
+  width:100%;
+  background:rgba(11,15,20,.96);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--bdr);
+  padding:10px 16px;
+  display:flex;
+  gap:8px;
+  justify-content:center;
+}
+.editor-actions .btn{max-width:160px;}
+.editor-actions .print-final{
+  flex:1;max-width:200px;padding:13px;border-radius:9px;
+  font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:700;
+  cursor:pointer;border:none;background:var(--gold);color:var(--bg);transition:all .2s;
+}
+.editor-actions .print-final:hover{background:var(--gold-l);}
+
+/* ── Print styles ── */
+@media print{
+  body{background:#fff;}
+  .no-print{display:none!important;}
+  .doc-page{box-shadow:none;border-radius:0;padding:0;background:#fff;}
+  .doc-page:not(:focus-within)::after{display:none;}
+  .editor-canvas{background:#fff;padding:0;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useRef,useEffect,useCallback}=React;
+
+/* ── STATIC DATA ── */
+const CIVIL=["Single","Married","Widowed","Separated","Annulled"];
+const CONCERNS=["Syndicated Estafa","Qualified Theft","Estafa / Swindling","Falsification of Documents",
+  "Illegal Dismissal","Collection of Sum of Money","Annulment of Marriage","Land Dispute / Recovery of Property",
+  "Violation of VAWC","B.P. 22 (Bouncing Checks)","Nullity of Contract","Unlawful Detainer",
+  "Libel / Cyber Libel","Robbery / Theft","Violation of RA 9165 (Drugs)","Carnapping"];
+
+const IBP=[
+  {cat:"Acceptance Fees – Criminal Cases",items:[
+    {id:"cr1",label:"Criminal Case – MTCC/MTC",fee:"₱80,000",note:"Per case"},
+    {id:"cr2",label:"Criminal Case – RTC (Max. imprisonment 6 yrs & 1 day or more)",fee:"₱100,000",note:"Per case"},
+    {id:"cr3",label:"Criminal Case – RTC (Life Imprisonment / Reclusion Perpetua)",fee:"₱200,000",note:"Per case"},
+    {id:"cr4",label:"Criminal Case – Sandiganbayan / Court of Tax Appeals",fee:"₱200,000",note:"Per case"},
+  ]},
+  {cat:"Acceptance Fees – Civil Cases",items:[
+    {id:"cv1",label:"Ordinary Civil Actions (Money, Damages, Recovery of Property, etc.)",fee:"10% of amount involved",note:"MTCC min ₱75,000 / RTC min ₱150,000"},
+    {id:"cv2",label:"Civil Actions with Provisional Remedies (Attachment, Injunction, etc.)",fee:"10% of property value",note:"MTCC min ₱100,000 / RTC min ₱150,000"},
+    {id:"cv3",label:"Interpleader, Certiorari, Prohibition, Mandamus, Quo Warranto",fee:"Per schedule",note:"RTC min ₱150,000 / SC min ₱250,000"},
+    {id:"cv4",label:"Expropriation Cases",fee:"10% of amount involved",note:"RTC min ₱200,000 / SC min ₱250,000"},
+    {id:"cv5",label:"Foreclosure of Real Estate Mortgage",fee:"10% of amount involved",note:"MTCC min ₱75,000 / RTC min ₱150,000"},
+    {id:"cv6",label:"Forcible Entry and Unlawful Detainer",fee:"₱100,000 or ₱25,000/defendant",note:"Whichever is higher"},
+    {id:"cv7",label:"Annulment of Marriage / Declaration of Nullity",fee:"₱250,000",note:"Per case"},
+  ]},
+  {cat:"Acceptance Fees – Administrative / Quasi-Judicial",items:[
+    {id:"aq1",label:"Actions before Administrative or Quasi-Judicial Bodies",fee:"₱70,000",note:"New cases"},
+    {id:"aq2",label:"Appeals before Administrative or Quasi-Judicial Bodies",fee:"₱48,000 (handled) / ₱70,000 (new)",note:"Per case"},
+  ]},
+  {cat:"Acceptance Fees – Special Proceedings",items:[
+    {id:"sp1",label:"Settlement of Estate / Allowance of Will / Letters of Administration",fee:"10% of gross estate",note:"Not less than ₱100,000"},
+    {id:"sp2",label:"Guardianship, Trusteeship, Adoption, Habeas Corpus, Change of Name, etc.",fee:"₱75,000",note:"Per proceeding"},
+    {id:"sp3",label:"Contempt Proceedings – Criminal",fee:"₱80,000",note:""},
+    {id:"sp4",label:"Contempt Proceedings – Civil",fee:"₱80,000",note:""},
+    {id:"sp5",label:"Petition for Bail Before Filing of Information",fee:"MTC ₱10,000 / RTC ₱20,000",note:""},
+    {id:"sp6",label:"Naturalization Proceedings",fee:"₱200,000",note:""},
+    {id:"sp7",label:"Foreclosure of Real Estate Mortgage (Special Proceedings)",fee:"₱50,000 or 10% of highest bid",note:"Whichever is higher"},
+    {id:"sp8",label:"Foreclosure of Chattel Mortgage",fee:"₱25,000 or 10% of highest bid",note:"Whichever is higher"},
+    {id:"sp9",label:"Land Registration Cases",fee:"₱150,000 or 10% of FMV / ZV",note:"Whichever is higher"},
+    {id:"sp10",label:"Registration of Trademarks and Patents",fee:"₱75,000",note:""},
+    {id:"sp11",label:"Reconstitution of Title",fee:"₱100,000",note:""},
+    {id:"sp12",label:"Reissuance of Lost Owner's Duplicate Copy of Title",fee:"₱75,000 per title",note:""},
+    {id:"sp13",label:"Election Cases – Local Level",fee:"₱100,000",note:""},
+    {id:"sp14",label:"Election Cases – COMELEC Division/En Banc",fee:"₱250,000",note:""},
+    {id:"sp15",label:"Immigration Cases",fee:"₱100,000",note:""},
+  ]},
+  {cat:"Appearance Fees",items:[
+    {id:"ap1",label:"Cases Before the Municipal Trial Court",fee:"₱3,500",note:"Per appearance"},
+    {id:"ap2",label:"Cases Before Labor Arbiters, Prosecutor's Office & Quasi-Judicial Bodies",fee:"₱5,000",note:"Per appearance"},
+    {id:"ap3",label:"Cases Before Regional Trial Court",fee:"₱5,000",note:"Per appearance"},
+    {id:"ap4",label:"Hearings Outside CDO but Within Region 10 (Except Camiguin)",fee:"₱15,590 + Transportation & Meal",note:"Per appearance"},
+    {id:"ap5",label:"Hearings Outside Region 10 & Camiguin, within Mindanao",fee:"₱28,000 + Transportation & Hotel",note:"Per appearance"},
+    {id:"ap6",label:"Hearings in Visayas or Luzon",fee:"₱30,000 + Transportation & Hotel",note:"Per appearance"},
+    {id:"ap7",label:"Court of Appeals – Mindanao Station",fee:"₱10,000",note:"Per appearance"},
+    {id:"ap8",label:"Court of Appeals – Manila",fee:"₱30,000 + Transportation & Hotel",note:"Per appearance"},
+    {id:"ap9",label:"Hearings Before the Supreme Court",fee:"₱35,000 + Transportation & Hotel",note:"Per appearance"},
+  ]},
+  {cat:"Pleadings, Motions & Documents",items:[
+    {id:"pl1",label:"Counter Affidavit or Answer",fee:"₱15,000",note:""},
+    {id:"pl2",label:"Complaint or Complaint Affidavit",fee:"₱15,000",note:""},
+    {id:"pl3",label:"Reply or Rejoinder",fee:"₱5,000",note:""},
+    {id:"pl4",label:"Judicial Affidavit",fee:"₱10,000",note:""},
+    {id:"pl5",label:"Memorandum",fee:"₱20,000",note:""},
+    {id:"pl6",label:"Position Paper",fee:"₱20,000",note:""},
+    {id:"pl7",label:"Pro-forma Pleadings and Non-litigious Motions",fee:"₱1,000/page (min ₱3,000)",note:""},
+    {id:"pl8",label:"Litigious Motions",fee:"₱1,000/page",note:""},
+    {id:"pl9",label:"Pre-Trial Brief",fee:"₱5,000",note:""},
+    {id:"pl10",label:"Other Pleadings / Documents",fee:"₱1,000/page (min ₱3,000)",note:""},
+  ]},
+  {cat:"Appeals, Certiorari & Petitions",items:[
+    {id:"al1",label:"From Public Prosecutor / DOJ to Regional Trial Court",fee:"₱30,000 (handled) / ₱50,000 (new)",note:""},
+    {id:"al2",label:"From Municipal Trial Court to Regional Trial Court",fee:"₱75,000 (handled) / ₱100,000 (new)",note:""},
+    {id:"al3",label:"From Regional Trial Court to Court of Appeals",fee:"₱100,000 (handled) / ₱200,000 (new)",note:""},
+    {id:"al4",label:"From Court of Appeals to the Supreme Court",fee:"₱150,000 (handled) / ₱250,000 (new)",note:""},
+    {id:"al5",label:"From Administrative/Quasi-Judicial Bodies to NLRC, CA, CTA, or SC",fee:"₱100,000",note:""},
+    {id:"al6",label:"Acceptance Fee for Appeal or Review Before the Supreme Court",fee:"₱200,000",note:""},
+  ]},
+  {cat:"Deeds, Contracts & Transactional Works",items:[
+    {id:"dc1",label:"Preparation & Acknowledgment of Deed of Sale, Real Estate/Chattel Mortgage",fee:"₱15,000 or 3.5% of total value",note:"Whichever is higher"},
+    {id:"dc2",label:"Notarial Acknowledgment of Deeds, Contracts, Waiver of Rights",fee:"₱15,000 or 3.5% of total value",note:"Whichever is higher"},
+    {id:"dc3",label:"Submission Agreements, Extra-Judicial Partition, Deeds of Donation",fee:"₱20,000 or 3.5% of total value",note:"Whichever is higher"},
+    {id:"dc4",label:"Preparation & Acknowledgment of a Last Will and Testament",fee:"₱25,000 or 3% of Gross Value of Estate",note:"Whichever is higher"},
+    {id:"dc5",label:"Preparation & Acknowledgment of Contract of Lease",fee:"₱10,000 or 3.5% of total value",note:"Whichever is higher"},
+    {id:"dc6",label:"Preparation of Articles of Incorporation, By-Laws, and Registration",fee:"₱50,000",note:""},
+    {id:"dc7",label:"Title History and Other Research Requiring In-Depth Legal Analysis",fee:"₱20,000",note:""},
+  ]},
+  {cat:"Consultation & Research",items:[
+    {id:"co1",label:"Legal Consultation",fee:"₱1,500/hour",note:"Office or virtual"},
+    {id:"co2",label:"Demand Letter and Other Correspondence",fee:"₱1,500 or 1% of total price in letter",note:"Whichever is higher"},
+    {id:"co3",label:"Legal Research and Study / Written Advice or Opinion",fee:"₱2,500 or ₱1,000/page",note:"Whichever is higher"},
+    {id:"co4",label:"Preliminary Case Study Fee",fee:"₱7,000",note:""},
+  ]},
+  {cat:"Retainer's Fee",items:[
+    {id:"re1",label:"Retainer Agreement – Business Capital of ₱5M and Below",fee:"₱10,000/month",note:"Monthly retainer"},
+    {id:"re2",label:"Retainer Agreement – Business Capital Above ₱5M (Out of Court)",fee:"₱25,000/month",note:"Monthly retainer"},
+  ]},
+  {cat:"Simple Documents (Notarial)",items:[
+    {id:"no1",label:"Simple Documents – Jurat",fee:"₱1,000 with notarization / ₱700 notarization only",note:""},
+    {id:"no2",label:"Acknowledgment of Power of Attorney or Ordinary Documents",fee:"₱3,000 min with notarization / ₱2,000 notarization only",note:""},
+    {id:"no3",label:"Secretary's Certificates, Minutes of Meetings, Resolutions of Corporation",fee:"₱1,500 with notarization / ₱1,000 notarization only",note:""},
+    {id:"no4",label:"Authentication and Certification of Documents or Statements",fee:"₱500 min or ₱100/page",note:"Whichever is higher"},
+  ]},
+];
+
+const RETAINER_IDS=["re1","re2"];
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+const SCOPE_TPL={
+  cr2:["Initial consultation with the Client to gather necessary facts and documents.",
+    "Review of all relevant documents to determine the legal basis and feasibility of the Criminal case.",
+    "Facilitating the possibility of amicable settlement before the filing of the Criminal case.",
+    "Preparation and filing of all necessary legal documents for the aforementioned Criminal case.",
+    "Representation of the Client in all court proceedings, hearings, and conferences related to the said case.",
+    "Providing legal advice and counsel to the Client throughout the duration of the litigation."],
+  cr3:["Initial consultation with the Client to gather necessary facts and documents.",
+    "Review of all relevant documents to determine the legal basis and feasibility of the Criminal case.",
+    "Facilitating the possibility of amicable settlement before the filing of the Criminal case.",
+    "Preparation and filing of all necessary legal documents for the aforementioned Criminal case.",
+    "Representation of the Client in all court proceedings, hearings, and conferences related to the said case.",
+    "Providing legal advice and counsel to the Client throughout the duration of the litigation."],
+  cr1:["Initial consultation with the Client to gather necessary facts and documents.",
+    "Review of all relevant documents to determine the legal basis and feasibility of the Criminal case.",
+    "Preparation and filing of all necessary legal documents for the aforementioned Criminal case.",
+    "Representation of the Client before the Municipal Trial Court in Cities/Municipal Trial Court.",
+    "Providing legal advice and counsel to the Client throughout the duration of the litigation."],
+  cv7:["Initial consultation with the Client to gather facts, circumstances, and supporting documents relevant to the petition.",
+    "Review and assessment of grounds for Annulment of Marriage or Declaration of Nullity.",
+    "Preparation and filing of the Petition before the Regional Trial Court.",
+    "Coordination with a psychological expert if grounds under Article 36 of the Family Code are involved.",
+    "Representation of the Client in all hearings, pre-trial, and trial proceedings.",
+    "Providing legal advice and counsel to the Client throughout the duration of the proceedings."],
+  sp1:["Initial consultation with the Client to gather necessary facts, documents, and identify heirs and estate properties.",
+    "Review and assessment of all relevant documents pertaining to the estate.",
+    "Preparation and filing of the Petition for Settlement of Estate before the appropriate court.",
+    "Facilitation of publication and notice requirements as required by law.",
+    "Representation of the Client in all proceedings related to the settlement of the estate.",
+    "Providing legal advice and counsel to the Client throughout the duration of the proceedings."],
+};
+const DEFAULT_SCOPE=["Initial consultation with the Client to gather necessary facts and documents.",
+  "Review of all relevant documents to determine the legal basis and feasibility of the matter.",
+  "Preparation and filing of all necessary legal documents related to the engagement.",
+  "Representation of the Client in all relevant proceedings, hearings, and conferences.",
+  "Providing legal advice and counsel to the Client throughout the duration of the engagement."];
+
+const DEFAULT_CLAUSES=[
+  {id:"c1",title:"Expenses and Disbursements",enabled:true,
+    text:"All out-of-pocket expenses incurred by the Law Office in the course of providing legal services, including but not limited to court fees and other incidental costs, shall be reimbursed by the Client upon presentation of official receipts. These expenses are separate from and in addition to the professional fees mentioned above."},
+  {id:"c2",title:"Client Obligations",enabled:true,
+    text:"To effectively carry out the engagement, the Client agrees to provide timely, complete, and accurate documentation necessary to perform the legal services described above. Legal advice and services will be based solely on the information made available by the Client. The Client shall also inform counsel of any material changes in circumstances that may affect the scope or delivery of services."},
+  {id:"c3",title:"Confidentiality",enabled:true,
+    text:"Both parties agree to maintain the confidentiality of all information shared during the course of this engagement, subject to legal and ethical obligations. The Law Office shall not disclose any information obtained in the course of the engagement without the prior written consent of the Client, except as required by law."},
+  {id:"c4",title:"Termination",enabled:true,
+    text:"The legal services agreement may be terminated by either party by providing written notice at least thirty (30) days before the intended date of termination. Upon termination, the Client shall pay all fees and expenses incurred up to the date of termination."},
+  {id:"c5",title:"Miscellaneous",enabled:true,
+    text:"Should the Client require services beyond the scope described herein or in specialized areas of law, such services shall be subject to a separate written agreement and quoted based on standard billing rates. Court case representation not covered under this engagement shall be charged based on the prevailing minimum rates of the Integrated Bar of the Philippines, subject to a 25% discount on acceptance fees for existing Clients."},
+];
+
+function uid(){return Math.random().toString(36).slice(2);}
+
+function genSchedule(s){
+  if(!s.amount||!s.startMonth||!s.startYear||!s.installments) return [];
+  const rows=[];let m=parseInt(s.startMonth);let y=parseInt(s.startYear);
+  const n=parseInt(s.installments);const day=s.day||"19";
+  for(let i=0;i<n;i++){
+    rows.push({no:i+1,date:`${MONTHS[m-1]} ${day}, ${y}`,amount:`₱${parseInt(s.amount).toLocaleString()}.00`});
+    m++;if(m>12){m=1;y++;}
+  }
+  return rows;
+}
+
+function Toggle({on,onToggle}){
+  return <div className={`tog ${on?"on":""}`} onClick={e=>{e.stopPropagation();onToggle();}}><div className="knob"/></div>;
+}
+
+function FirmModal({firm,setFirm,onClose}){
+  const fields=[
+    {label:"Attorney Full Name",key:"attorney",ph:"e.g. Atty. Albert Wences C. Daba III"},
+    {label:"Firm Name",key:"firmName",ph:"e.g. Daba Law Office"},
+    {label:"Tagline / Practice Areas",key:"tagline",ph:"e.g. Tax · Corporate · Real Estate"},
+    {label:"Office Address",key:"address",ph:"e.g. 1F BEC Bldg., Patag-Bulua Rd., CDO"},
+    {label:"Phone",key:"phone",ph:"e.g. +63 975 150 7595"},
+    {label:"Email",key:"email",ph:"e.g. info@dabalaw.com"},
+    {label:"Website",key:"website",ph:"e.g. www.dabalaw.com"},
+  ];
+  return(
+    <div className="modal-ov" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal-sh">
+        <div className="mhandle"/>
+        <div className="mtitle">Firm & Attorney Details</div>
+        <div className="msub">These will appear on every generated SOW</div>
+        {fields.map(f=>(
+          <div className="fg" key={f.key}>
+            <label className="fl">{f.label}</label>
+            <input className="fi" placeholder={f.ph} value={firm[f.key]||""}
+              onChange={e=>setFirm(p=>({...p,[f.key]:e.target.value}))}/>
+          </div>
+        ))}
+        <div className="brow"><button className="btn bp" onClick={onClose}>Save & Close</button></div>
+      </div>
+    </div>
+  );
+}
+
+/* ── PAGELESS EDITOR COMPONENT ── */
+function PagelessEditor({htmlContent,onBack,onReset}){
+  const docRef=useRef(null);
+  const [activeFmts,setActiveFmts]=useState({bold:false,italic:false,underline:false});
+
+  /* Track active formatting at cursor */
+  const updateFmtState=()=>{
+    setActiveFmts({
+      bold:document.queryCommandState('bold'),
+      italic:document.queryCommandState('italic'),
+      underline:document.queryCommandState('underline'),
+    });
+  };
+
+  /* Seed the contentEditable once when HTML changes */
+  useEffect(()=>{
+    if(docRef.current && htmlContent){
+      docRef.current.innerHTML=htmlContent;
+    }
+  },[htmlContent]);
+
+  const execFmt=(cmd)=>{
+    docRef.current?.focus();
+    document.execCommand(cmd,false,null);
+    updateFmtState();
+  };
+
+  const execFontSize=(size)=>{
+    docRef.current?.focus();
+    document.execCommand('fontSize',false,size);
+    updateFmtState();
+  };
+
+  const handlePrint=()=>{
+    const content=docRef.current?.innerHTML||"";
+    const w=window.open("","_blank");
+    w.document.write(`<!DOCTYPE html><html><head>
+<title>Statement of Work</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',Georgia,serif;background:#fff;padding:48px;color:#1a1f2e;max-width:760px;margin:0 auto;}
+.sow-header-firm{display:flex;align-items:flex-start;gap:14px;margin-bottom:22px;padding-bottom:18px;border-bottom:2.5px solid #1a1f2e;}
+.firm-logo-box{width:44px;height:44px;background:#0b0f14;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;color:#b48e3c;font-weight:700;flex-shrink:0;}
+.firm-info{flex:1;min-width:0;}
+.firm-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#1a1f2e;}
+.firm-tag{font-size:9.5px;color:#888;letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+.firm-contact{font-size:9.5px;color:#aaa;margin-top:3px;}
+.firm-addr{font-size:9.5px;color:#aaa;text-align:right;max-width:160px;line-height:1.5;flex-shrink:0;}
+.doc-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;text-align:center;text-decoration:underline;margin-bottom:4px;color:#1a1f2e;}
+.doc-subtitle{text-align:center;font-size:10px;color:#888;margin-bottom:24px;letter-spacing:.07em;text-transform:uppercase;}
+p{font-size:13px;line-height:1.78;color:#374151;margin-bottom:14px;text-align:justify;}
+h3{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:#1a1f2e;margin-bottom:10px;margin-top:20px;}
+ol{padding-left:0;list-style:none;margin-bottom:14px;}
+ol li{font-size:13px;color:#374151;line-height:1.68;margin-bottom:8px;padding-left:24px;position:relative;}
+ol li::before{content:attr(data-l)".";position:absolute;left:0;font-weight:700;color:#1a1f2e;}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;}
+table th{background:#1a1f2e;color:#e8dfc8;padding:8px 10px;text-align:left;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;}
+table td{padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#374151;vertical-align:top;}
+table tr:nth-child(even) td{background:#f5f5f2;}
+.fee-val{color:#8a6820;font-weight:700;}
+.pay-note{font-size:12px;color:#666;line-height:1.68;padding:12px 14px;background:#f8f6f0;border-radius:7px;border-left:3px solid #b48e3c;margin-bottom:14px;}
+.sig-section{margin-top:40px;display:flex;justify-content:space-between;gap:24px;}
+.sig-block{flex:1;}
+.sig-label{font-size:10px;color:#999;letter-spacing:.07em;text-transform:uppercase;margin-bottom:32px;}
+.sig-line{border-top:1.5px solid #1a1f2e;padding-top:6px;font-size:12.5px;font-weight:700;color:#1a1f2e;}
+.sig-role{font-size:10px;color:#aaa;margin-top:4px;}
+.doc-date{font-size:11px;color:#999;text-align:right;margin-top:12px;}
+</style></head><body>${content}</body></html>`);
+    w.document.close();
+    setTimeout(()=>w.print(),600);
+  };
+
+  return(
+    <div className="editor-stage no-print-wrapper">
+      {/* Toolbar */}
+      <div className="editor-toolbar no-print">
+        <div className="tb-group">
+          <span className="tb-label">Format</span>
+          <button className={`tb-btn ${activeFmts.bold?"active":""}`}
+            onMouseDown={e=>{e.preventDefault();execFmt('bold');}}
+            title="Bold (select text first)">
+            <strong>B</strong>
+          </button>
+          <button className={`tb-btn ${activeFmts.italic?"active":""}`}
+            onMouseDown={e=>{e.preventDefault();execFmt('italic');}}
+            title="Italic">
+            <em>I</em>
+          </button>
+          <button className={`tb-btn ${activeFmts.underline?"active":""}`}
+            onMouseDown={e=>{e.preventDefault();execFmt('underline');}}
+            title="Underline">
+            <span style={{textDecoration:"underline"}}>U</span>
+          </button>
+        </div>
+
+        <div className="tb-group">
+          <span className="tb-label">Size</span>
+          <select className="tb-select"
+            onChange={e=>{if(e.target.value){execFontSize(e.target.value);e.target.value="";}}}
+            defaultValue="">
+            <option value="" disabled>Size</option>
+            <option value="1">Small</option>
+            <option value="3">Normal</option>
+            <option value="4">Large</option>
+            <option value="5">X-Large</option>
+          </select>
+        </div>
+
+        <div className="tb-group">
+          <span className="tb-label">Align</span>
+          <button className="tb-btn"
+            onMouseDown={e=>{e.preventDefault();document.execCommand('justifyLeft');}}
+            title="Align Left">⬤≡</button>
+          <button className="tb-btn"
+            onMouseDown={e=>{e.preventDefault();document.execCommand('justifyCenter');}}
+            title="Center">≡≡</button>
+          <button className="tb-btn"
+            onMouseDown={e=>{e.preventDefault();document.execCommand('justifyFull');}}
+            title="Justify">▤</button>
+        </div>
+
+        <div className="tb-group">
+          <span className="tb-label">Edit</span>
+          <button className="tb-btn"
+            onMouseDown={e=>{e.preventDefault();document.execCommand('undo');}}
+            title="Undo">↩</button>
+          <button className="tb-btn"
+            onMouseDown={e=>{e.preventDefault();document.execCommand('redo');}}
+            title="Redo">↪</button>
+        </div>
+
+        <div className="tb-group">
+          <button className="tb-btn print-tb" onClick={handlePrint}>
+            🖨 Print / PDF
+          </button>
+        </div>
+      </div>
+
+      {/* Canvas */}
+      <div className="editor-canvas">
+        <div
+          ref={docRef}
+          className="doc-page"
+          contentEditable={true}
+          suppressContentEditableWarning={true}
+          spellCheck={true}
+          onKeyUp={updateFmtState}
+          onMouseUp={updateFmtState}
+          onSelect={updateFmtState}
+        />
+      </div>
+
+      {/* Bottom actions */}
+      <div className="editor-actions no-print">
+        <button className="btn bs" style={{maxWidth:90,fontSize:12,padding:"13px 0"}}
+          onClick={onBack}>← Back</button>
+        <button className="print-final" onClick={handlePrint}>🖨 Print / Save as PDF</button>
+        <button className="btn bp" style={{maxWidth:90,fontSize:12,padding:"13px 0"}}
+          onClick={onReset}>New SOW</button>
+      </div>
+    </div>
+  );
+}
+
+/* ── MAIN APP ── */
+function App(){
+  const [step,setStep]=useState(1);
+  const [showFirm,setShowFirm]=useState(false);
+  const [openCat,setOpenCat]=useState(null);
+  const [openClause,setOpenClause]=useState(null);
+
+  const [firm,setFirm]=useState({
+    attorney:"Atty. Albert Wences C. Daba III",
+    firmName:"Daba Law Office",
+    tagline:"Tax · Corporate · Real Estate",
+    address:"1F BEC Bldg., Beside LTFRB Region X, Patag-Bulua Rd., Cagayan de Oro City",
+    phone:"+63 975 150 7595",
+    email:"info@dabalaw.com",
+    website:"www.dabalaw.com",
+  });
+
+  const [client,setClient]=useState({name:"",civilStatus:"",address:""});
+  const [concern,setConcern]=useState("");
+  const [selected,setSelected]=useState([]);
+  const [rsched,setRsched]=useState({
+    amount:"",startMonth:new Date().getMonth()+1,
+    startYear:new Date().getFullYear(),installments:"",day:"19"
+  });
+  const [scopeItems,setScopeItems]=useState([]);
+  const [clauses,setClauses]=useState(DEFAULT_CLAUSES.map(c=>({...c})));
+  const [editorHTML,setEditorHTML]=useState("");
+
+  const toggle=(item)=>setSelected(p=>p.find(s=>s.id===item.id)?p.filter(s=>s.id!==item.id):[...p,item]);
+  const isSel=(id)=>selected.some(s=>s.id===id);
+  const selCnt=(cat)=>cat.items.filter(i=>isSel(i.id)).length;
+  const hasRet=selected.some(s=>RETAINER_IDS.includes(s.id));
+  const schedRows=hasRet?genSchedule(rsched):[];
+
+  const initScope=()=>{
+    let items=[];
+    for(const svc of selected){if(SCOPE_TPL[svc.id]){items=SCOPE_TPL[svc.id].map(t=>({id:uid(),text:t}));break;}}
+    if(!items.length) items=DEFAULT_SCOPE.map(t=>({id:uid(),text:t}));
+    setScopeItems(items);setStep(4);
+  };
+
+  const addScope=()=>setScopeItems(p=>[...p,{id:uid(),text:""}]);
+  const delScope=(id)=>setScopeItems(p=>p.filter(i=>i.id!==id));
+  const moveScope=(id,dir)=>setScopeItems(p=>{
+    const idx=p.findIndex(i=>i.id===id);const n=[...p];const ni=idx+dir;
+    if(ni<0||ni>=n.length) return p;[n[idx],n[ni]]=[n[ni],n[idx]];return n;
+  });
+  const editScope=(id,text)=>setScopeItems(p=>p.map(i=>i.id===id?{...i,text}:i));
+  const togClause=(id)=>setClauses(p=>p.map(c=>c.id===id?{...c,enabled:!c.enabled}:c));
+  const editClause=(id,text)=>setClauses(p=>p.map(c=>c.id===id?{...c,text}:c));
+
+  const today=new Date().toLocaleDateString("en-PH",{year:"numeric",month:"long",day:"numeric"});
+
+  /* Build the SOW HTML string that seeds the pageless editor */
+  const buildSOWHtml=()=>{
+    const feeRows=selected.map(svc=>`
+      <tr>
+        <td>${svc.label}</td>
+        <td class="fee-val">${svc.fee}</td>
+        <td style="color:#9ca3af">${svc.note||"—"}</td>
+      </tr>`).join("");
+
+    const schedHtml=hasRet&&schedRows.length>0?`
+      <p><strong>Retainer Payment Schedule:</strong></p>
+      <table>
+        <thead><tr><th>No.</th><th>Due Date</th><th>Amount</th></tr></thead>
+        <tbody>${schedRows.map(r=>`<tr><td>${r.no}</td><td>${r.date}</td><td>${r.amount}</td></tr>`).join("")}</tbody>
+      </table>`:"";
+
+    const scopeHtml=scopeItems.filter(i=>i.text.trim()).map((item,idx)=>
+      `<li data-l="${String.fromCharCode(97+idx)}">${item.text}</li>`).join("");
+
+    const clausesSectionNum=(idx)=>idx+3;
+    const clausesHtml=clauses.filter(c=>c.enabled).map((c,idx)=>
+      `<h3>${clausesSectionNum(idx)}. ${c.title}</h3><p>${c.text}</p>`).join("");
+
+    const contactLine=[firm.phone,firm.email,firm.website].filter(Boolean).join(" · ");
+
+    return `
+<div class="sow-header-firm">
+  <div class="firm-logo-box">${(firm.firmName||"D")[0]}</div>
+  <div class="firm-info">
+    <div class="firm-name">${firm.firmName||"Law Office"}</div>
+    ${firm.tagline?`<div class="firm-tag">${firm.tagline}</div>`:""}
+    ${contactLine?`<div class="firm-contact">${contactLine}</div>`:""}
+  </div>
+  ${firm.address?`<div class="firm-addr">${firm.address}</div>`:""}
+</div>
+
+<div class="doc-title">Statement of Work – Fees</div>
+<div class="doc-subtitle">Per IBP Resolution No. 0503, Series of 2024</div>
+
+<p>I understand that the prospective client, <strong>${client.name}</strong>, of legal age,
+${client.civilStatus.toLowerCase()}, and a resident of ${client.address}.</p>
+
+<p>I understand that the immediate concern is the need for legal assistance regarding:
+<strong>${concern}</strong>.</p>
+
+<h3>1. Proposed Scope of Services and Deliverables</h3>
+<ol>${scopeHtml}</ol>
+
+<h3>2. Professional Fees and Payment Terms</h3>
+<p>${firm.firmName||"The Law Office"} charges the IBP Minimum Tariff Rates.
+The fees for the services outlined herein shall be as follows:</p>
+
+<table>
+  <thead><tr><th>Service</th><th>Fee</th><th>Notes</th></tr></thead>
+  <tbody>${feeRows}</tbody>
+</table>
+
+${schedHtml}
+
+<div class="pay-note"><strong>Payment Terms:</strong> Acceptance fees are payable upon engagement.
+Appearance fees are payable per scheduled court appearance.
+Drafting and filing fees are payable upon submission or filing of the pertinent document.</div>
+
+${clausesHtml}
+
+<p class="doc-date">Date Prepared: ${today}</p>
+
+<div class="sig-section">
+  <div class="sig-block">
+    <div class="sig-label">Prepared by:</div>
+    <div class="sig-line">${firm.attorney||"Counsel"}</div>
+    <div class="sig-role">${firm.firmName||"Law Office"}</div>
+  </div>
+  <div class="sig-block">
+    <div class="sig-label">Accepted by:</div>
+    <div class="sig-line">${client.name}</div>
+    <div class="sig-role">Client</div>
+  </div>
+</div>`;
+  };
+
+  const goToEditor=()=>{
+    setEditorHTML(buildSOWHtml());
+    setStep(6);
+    window.scrollTo({top:0,behavior:"smooth"});
+  };
+
+  const reset=()=>{
+    setStep(1);
+    setClient({name:"",civilStatus:"",address:""});setConcern("");setSelected([]);setScopeItems([]);
+    setRsched({amount:"",startMonth:new Date().getMonth()+1,startYear:new Date().getFullYear(),installments:"",day:"19"});
+    setClauses(DEFAULT_CLAUSES.map(c=>({...c})));setOpenCat(null);setOpenClause(null);setEditorHTML("");
+  };
+
+  const SLABELS=["Client","Concern","Services","Scope","Edit","Print"];
+
+  /* Editor step — full-width, no card wrapper */
+  if(step===6){
+    return(
+      <div className="app" style={{padding:0,alignItems:"stretch"}}>
+        {showFirm&&<FirmModal firm={firm} setFirm={setFirm} onClose={()=>setShowFirm(false)}/>}
+        <PagelessEditor
+          htmlContent={editorHTML}
+          onBack={()=>setStep(5)}
+          onReset={reset}
+        />
+      </div>
+    );
+  }
+
+  /* All other steps */
+  return(
+    <div className="app">
+      {showFirm&&<FirmModal firm={firm} setFirm={setFirm} onClose={()=>setShowFirm(false)}/>}
+
+      <div className="hdr">
+        <div>
+          <div className="hdr-badge"><span>⚖ SOW Maker</span></div>
+          <h1>Statement of Work<br/>Generator</h1>
+          <p>IBP Misamis Oriental · Res. No. 0503, Series of 2024</p>
+        </div>
+        <button className="gear-btn" onClick={()=>setShowFirm(true)}>⚙</button>
+      </div>
+
+      <div className="strack">
+        {SLABELS.map((lbl,i)=>{
+          const n=i+1;const done=step>n;const active=step===n;
+          return(<React.Fragment key={i}>
+            <div className={`sdot ${done?"done":active?"active":"pending"}`}>{done?"✓":n}</div>
+            {i<SLABELS.length-1&&<div className={`sline ${done?"done":""}`}/>}
+          </React.Fragment>);
+        })}
+      </div>
+      <div className="slabels">
+        {SLABELS.map((lbl,i)=>(
+          <span key={i} className={`slabel ${step===i+1?"active":""}`}>{lbl}</span>
+        ))}
+      </div>
+
+      {/* ── STEP 1 ── */}
+      {step===1&&(
+        <div className="card">
+          <div className="ctitle">Client Information</div>
+          <div className="csub">Enter the prospective client's details</div>
+          <div className="fg">
+            <label className="fl">Full Name</label>
+            <input className="fi" placeholder="e.g. Grace Rocelloza" value={client.name}
+              onChange={e=>setClient({...client,name:e.target.value})}/>
+          </div>
+          <div className="fg">
+            <label className="fl">Civil Status</label>
+            <div className="cgrid">
+              {CIVIL.map(cs=>(
+                <button key={cs} className={`pbtn ${client.civilStatus===cs?"sel":""}`}
+                  onClick={()=>setClient({...client,civilStatus:cs})}>{cs}</button>
+              ))}
+            </div>
+          </div>
+          <div className="fg">
+            <label className="fl">Address</label>
+            <textarea className="fi" rows="3"
+              placeholder="e.g. 1337 Trium St. Green Village, Kauswagan, Cagayan de Oro City"
+              value={client.address} onChange={e=>setClient({...client,address:e.target.value})}/>
+          </div>
+          <div className="brow">
+            <button className="btn bp" onClick={()=>{
+              if(client.name&&client.civilStatus&&client.address) setStep(2);
+              else alert("Please complete all client fields.");
+            }}>Continue →</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 2 ── */}
+      {step===2&&(
+        <div className="card">
+          <div className="ctitle">Immediate Concern</div>
+          <div className="csub">Describe the client's legal matter</div>
+          <div className="fg">
+            <label className="fl">Nature of the Legal Matter</label>
+            <textarea className="fi" rows="5"
+              placeholder="e.g. The client seeks legal assistance in prosecuting a case of Syndicated Estafa and/or Qualified Theft..."
+              value={concern} onChange={e=>setConcern(e.target.value)}/>
+          </div>
+          <label className="fl">Quick Insert</label>
+          <div className="chips">
+            {CONCERNS.map(c=>(
+              <button key={c} className="chip" onClick={()=>setConcern(p=>p?p+"; "+c:c)}>+ {c}</button>
+            ))}
+          </div>
+          <div className="brow">
+            <button className="btn bs" onClick={()=>setStep(1)}>← Back</button>
+            <button className="btn bp" onClick={()=>{
+              if(concern.trim()) setStep(3); else alert("Please describe the client's concern.");
+            }}>Continue →</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 3 ── */}
+      {step===3&&(
+        <div className="card">
+          <div className="ctitle">Select Services</div>
+          <div className="csub">Tap items from the IBP Minimum Tariff</div>
+
+          {selected.length>0&&(
+            <div className="ssum">
+              <div className="ssumtitle">✓ {selected.length} item{selected.length>1?"s":""} selected</div>
+              <div>{selected.map(s=>(
+                <span key={s.id} className="stag" onClick={()=>toggle(s)}>
+                  {s.label.length>34?s.label.slice(0,34)+"…":s.label} ✕
+                </span>
+              ))}</div>
+            </div>
+          )}
+
+          {hasRet&&(
+            <div className="rbox">
+              <div className="rtitle">📅 Retainer Payment Schedule</div>
+              <div className="tcol">
+                <div className="fg" style={{marginBottom:0}}>
+                  <label className="fl">Monthly Amount (₱)</label>
+                  <input className="fi" type="number" placeholder="e.g. 10000"
+                    value={rsched.amount} onChange={e=>setRsched(p=>({...p,amount:e.target.value}))}/>
+                </div>
+                <div className="fg" style={{marginBottom:0}}>
+                  <label className="fl">Day of Month</label>
+                  <input className="fi" type="number" min="1" max="31" placeholder="e.g. 19"
+                    value={rsched.day} onChange={e=>setRsched(p=>({...p,day:e.target.value}))}/>
+                </div>
+              </div>
+              <div className="tcol" style={{marginTop:10}}>
+                <div className="fg" style={{marginBottom:0}}>
+                  <label className="fl">Start Month</label>
+                  <select className="fi" value={rsched.startMonth}
+                    onChange={e=>setRsched(p=>({...p,startMonth:e.target.value}))}>
+                    {MONTHS.map((m,i)=><option key={i} value={i+1}>{m}</option>)}
+                  </select>
+                </div>
+                <div className="fg" style={{marginBottom:0}}>
+                  <label className="fl">Start Year</label>
+                  <input className="fi" type="number" placeholder="2025"
+                    value={rsched.startYear} onChange={e=>setRsched(p=>({...p,startYear:e.target.value}))}/>
+                </div>
+              </div>
+              <div className="fg" style={{marginTop:10}}>
+                <label className="fl">Number of Monthly Installments</label>
+                <input className="fi" type="number" placeholder="e.g. 8"
+                  value={rsched.installments} onChange={e=>setRsched(p=>({...p,installments:e.target.value}))}/>
+              </div>
+              {schedRows.length>0&&(
+                <table className="sched-tbl-dark">
+                  <thead><tr><th>#</th><th>Due Date</th><th>Amount</th></tr></thead>
+                  <tbody>{schedRows.map(r=>(
+                    <tr key={r.no}><td>{r.no}</td><td>{r.date}</td><td>{r.amount}</td></tr>
+                  ))}</tbody>
+                </table>
+              )}
+            </div>
+          )}
+
+          <div className="scroll-s">
+            {IBP.map(cat=>{
+              const cnt=selCnt(cat);const isOpen=openCat===cat.cat;
+              return(
+                <div key={cat.cat} className="catwrap">
+                  <div className={`cathead ${isOpen?"open":""}`} onClick={()=>setOpenCat(isOpen?null:cat.cat)}>
+                    <span className="catname">{cat.cat}</span>
+                    <div style={{display:"flex",alignItems:"center",gap:7}}>
+                      {cnt>0&&<span className="catbadge">{cnt}</span>}
+                      <span className="chev">▼</span>
+                    </div>
+                  </div>
+                  {isOpen&&(
+                    <div className="ibox">
+                      {cat.items.map(item=>(
+                        <div key={item.id} className={`srow ${isSel(item.id)?"sel":""}`} onClick={()=>toggle(item)}>
+                          <div className="chk">{isSel(item.id)&&<span className="cm">✓</span>}</div>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div className="slbl">{item.label}</div>
+                            <div className="sfee">{item.fee}</div>
+                            {item.note&&<div className="snote">{item.note}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="brow">
+            <button className="btn bs" onClick={()=>setStep(2)}>← Back</button>
+            <button className="btn bp" onClick={()=>{
+              if(selected.length===0){alert("Please select at least one service.");return;}
+              initScope();
+            }}>Build Scope →</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 4: Scope & Clauses ── */}
+      {step===4&&(
+        <div className="card">
+          <div className="ctitle">Scope & Clauses</div>
+          <div className="csub">Edit deliverables and standard clauses</div>
+
+          <label className="fl" style={{marginBottom:10}}>Scope of Services</label>
+          {scopeItems.map((item,idx)=>(
+            <div key={item.id} className="scope-item">
+              <div className="sletter">{String.fromCharCode(97+idx)}</div>
+              <textarea className="stxt" rows="2"
+                value={item.text} onChange={e=>editScope(item.id,e.target.value)}
+                placeholder="Describe deliverable..."/>
+              <div className="sacts">
+                <div className="ibtn" onClick={()=>moveScope(item.id,-1)}>↑</div>
+                <div className="ibtn" onClick={()=>moveScope(item.id,1)}>↓</div>
+                <div className="ibtn del" onClick={()=>delScope(item.id)}>✕</div>
+              </div>
+            </div>
+          ))}
+          <button className="add-btn" onClick={addScope}>＋ Add scope item</button>
+
+          <div className="dvdr"/>
+
+          <label className="fl" style={{marginBottom:6}}>Standard Clauses</label>
+          <p style={{fontSize:11,color:"var(--txt3)",marginBottom:12}}>Toggle on/off · tap to expand and edit text</p>
+
+          {clauses.map(clause=>(
+            <div key={clause.id} className="clause-item">
+              <div className={`clause-head ${clause.enabled?"con":""}`}
+                onClick={()=>setOpenClause(openClause===clause.id?null:clause.id)}>
+                <span className="cname">{clause.title}</span>
+                <div style={{display:"flex",alignItems:"center",gap:10}}>
+                  <Toggle on={clause.enabled} onToggle={()=>togClause(clause.id)}/>
+                  <span style={{fontSize:9,color:"var(--txt3)"}}>{openClause===clause.id?"▲":"▼"}</span>
+                </div>
+              </div>
+              {openClause===clause.id&&(
+                <div className="cbody">
+                  <div className="cnote">{clause.enabled?"Included — edit text below:":"Disabled — won't appear in SOW"}</div>
+                  <textarea className="ctarea" rows="5"
+                    value={clause.text} onChange={e=>editClause(clause.id,e.target.value)}/>
+                </div>
+              )}
+            </div>
+          ))}
+
+          <div className="brow">
+            <button className="btn bs" onClick={()=>setStep(3)}>← Back</button>
+            <button className="btn bp" onClick={()=>setStep(5)}>Preview →</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 5: Structured Preview ── */}
+      {step===5&&(
+        <div className="card">
+          <div className="ctitle">SOW Preview</div>
+          <div className="csub">Looks good? Open the pageless editor to make final tweaks before printing.</div>
+
+          {/* Compact preview — read only */}
+          <div style={{background:"#fafaf8",borderRadius:10,padding:"20px 18px",color:"#1a1f2e",fontFamily:"'DM Sans',sans-serif",fontSize:12,lineHeight:1.7,marginBottom:18}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,paddingBottom:12,borderBottom:"2px solid #1a1f2e"}}>
+              <div style={{width:36,height:36,background:"#0b0f14",borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Cormorant Garamond',serif",fontSize:17,color:"#b48e3c",fontWeight:700,flexShrink:0}}>{(firm.firmName||"D")[0]}</div>
+              <div>
+                <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:15,fontWeight:700}}>{firm.firmName}</div>
+                <div style={{fontSize:9,color:"#888",textTransform:"uppercase",letterSpacing:".07em"}}>{firm.tagline}</div>
+              </div>
+            </div>
+            <div style={{textAlign:"center",fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontWeight:700,textDecoration:"underline",marginBottom:3}}>Statement of Work – Fees</div>
+            <div style={{textAlign:"center",fontSize:9,color:"#888",letterSpacing:".07em",textTransform:"uppercase",marginBottom:16}}>Per IBP Resolution No. 0503, Series of 2024</div>
+            <p style={{marginBottom:10,color:"#374151"}}>Client: <strong>{client.name}</strong>, {client.civilStatus.toLowerCase()}, {client.address}</p>
+            <p style={{marginBottom:10,color:"#374151"}}>Concern: <strong>{concern}</strong></p>
+            <p style={{marginBottom:6,fontWeight:600,color:"#1a1f2e"}}>Scope ({scopeItems.filter(i=>i.text.trim()).length} items) · {selected.length} fee item{selected.length!==1?"s":""} · {clauses.filter(c=>c.enabled).length} clause{clauses.filter(c=>c.enabled).length!==1?"s":""}</p>
+            <p style={{fontSize:11,color:"#999"}}>Open the pageless editor below to see the full formatted document and make final edits.</p>
+          </div>
+
+          <div style={{background:"rgba(180,142,60,.07)",border:"1px solid rgba(180,142,60,.2)",borderRadius:9,padding:"12px 14px",marginBottom:4}}>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--gold)",marginBottom:4,letterSpacing:".06em",textTransform:"uppercase"}}>✏ Pageless Editor — Next Step</div>
+            <div style={{fontSize:11,color:"var(--txt3)",lineHeight:1.6}}>The next step opens the full SOW as a live editable document. Click anywhere to type, select text to format, then hit Print to export a clean PDF.</div>
+          </div>
+
+          <div className="brow">
+            <button className="btn bs" onClick={()=>setStep(4)}>← Back</button>
+            <button className="btn bp" onClick={goToEditor}>Open Editor →</button>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
