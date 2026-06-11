@@ -2667,17 +2667,7 @@ function buildDocumentText() {
    CLIPBOARD
    ============================================================ */
 async function copyToClipboard() {
-  const htmlString = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${buildDocumentHTML({ forClipboard: true })}
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('[SW] registered, scope:', reg.scope))
-      .catch(err => console.warn('[SW] registration failed:', err));
-  });
-}
-</script>
-</body></html>`;
+  const htmlString = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${buildDocumentHTML({ forClipboard: true })}</body></html>`;
   const textString = buildDocumentText();
 
   try {
@@ -3414,17 +3404,7 @@ async function emailDocument() {
 <style>
   body { font-family: Georgia, serif; max-width: 750px; margin: 32px auto; padding: 0 24px; color: black; line-height: 1.5; }
   @media print { body { margin: 0; max-width: none; padding: 0; } }
-</style></head><body>${buildDocumentHTML({ forClipboard: true, interactive: false })}
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('[SW] registered, scope:', reg.scope))
-      .catch(err => console.warn('[SW] registration failed:', err));
-  });
-}
-</script>
-</body></html>`;
+</style></head><body>${buildDocumentHTML({ forClipboard: true, interactive: false })}</body></html>`;
 
   // Try Web Share API with file attached (mobile)
   try {
